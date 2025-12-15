@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalóg produktov pre zavlažovanie</title>
+
+    <style>
+        /* Základné štýly pre telo stránky */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            scroll-behavior: smooth; /* Plynulý scroll pri kliknutí na šípku hore */
+        }
+
+        /* Header – horná lišta s názvom */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+		
+		#back-to-home {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#back-to-home:hover {
+    background-color: #388e3c;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+		
+
+        /* Vyhľadávací bar */
+        #search-bar {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        #search-input {
+            width: 60%;
+            max-width: 600px;
+            padding: 14px 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        #search-input:focus {
+            outline: none;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transform: scale(1.02);
+        }
+
+        /* Grid kategórií */
+        #categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        /* Karta kategórie */
+        .category-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 16px 30px rgba(0,0,0,0.2);
+        }
+
+        .category-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            loading: lazy; /* Lazy loading pre rýchlejšie načítanie */
+        }
+
+        .category-card h2 {
+            padding: 18px;
+            margin: 0;
+            font-size: 1.3em;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .category-card:hover h2 {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* Sekcia produktov */
+        #products {
+            padding: 30px;
+            background-color: #fff;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Tlačidlo späť */
+        #back-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #back-button:hover {
+            background-color: #388e3c;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        #category-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            color: #2e7d32;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Grid produktov */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Karta produktu */
+        .product-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .product-card:nth-child(n+1) { animation-delay: calc(0.1s * var(--i, 1)); }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 30px rgba(0,0,0,0.15);
+        }
+
+        .product-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            loading: lazy;
+            transition: transform 0.4s ease;
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .product-card h3 {
+            margin: 12px 0;
+            font-size: 1.15em;
+            color: #333;
+        }
+
+        .product-card p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Animácie */
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tlačidlo späť hore */
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #4CAF50;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #back-to-top:hover {
+            background-color: #388e3c;
+            transform: translateY(-5px);
+        }
+
+        /* Responzívny dizajn pre tablety (šírka < 1024px) */
+        @media (max-width: 1024px) {
+            #search-input {
+                width: 80%;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+            }
+
+            #back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 24px;
+            }
+        }
+
+        /* Responzívny dizajn pre mobily (šírka < 768px) */
+        @media (max-width: 768px) {
+            header {
+                padding: 20px 15px;
+            }
+
+            #search-input {
+                width: 90%;
+                padding: 12px 15px;
+                font-size: 15px;
+            }
+
+            #categories {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+
+            .category-card img {
+                height: 180px;
+            }
+
+            #products {
+                padding: 20px;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .product-card {
+                padding: 15px;
+            }
+
+            #back-button {
+                padding: 10px 20px;
+                font-size: 15px;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            #back-to-top {
+                bottom: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+            }
+
+            #category-title {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header s názvom katalógu -->
+    <header>
+        <h1>Katalóg produktov pre zavlažovanie</h1>
+    </header>
+
+<!-- Tlačidlo späť na hlavnú stránku -->
+<div style="text-align: center; padding: 10px 20px; background-color: #fff;">
+    <button id="back-to-home" onclick="window.location.href='index.html'">
+        ← Späť na hlavnú stránku
+    </button>
+</div>
+
+    <!-- Vyhľadávací bar -->
+    <div id="search-bar">
+        <input type="text" id="search-input" placeholder="Hľadať produkty podľa názvu alebo popisu...">
+    </div>
+
+    <!-- Grid kategórií -->
+    <main id="categories"></main>
+
+    <!-- Sekcia produktov -->
+    <section id="products" class="hidden">
+        <button id="back-button">← Späť na kategórie</button>
+        <h2 id="category-title"></h2>
+        <div class="product-grid" id="product-list"></div>
+    </section>
+
+    <!-- Tlačidlo späť hore -->
+    <div id="back-to-top" title="Späť hore">↑</div>
+
+    <!-- JavaScript pre logiku katalógu -->
+    <script src="main.js"></script>
+
+    <!-- JavaScript pre tlačidlo späť hore a responzívnu animáciu -->
+    <script>
+        // Tlačidlo späť hore – zobrazí sa po scrollnutí dole
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Postupná animácia pre product-card (nastavenie --i pre delay)
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const cards = entry.target.querySelectorAll('.product-card');
+                        cards.forEach((card, index) => {
+                            card.style.setProperty('--i', index + 1);
+                        });
+                    }
+                });
+            });
+            const productsSection = document.getElementById('products');
+            if (productsSection) observer.observe(productsSection);
+        });
+    </script>
+</body>
+</html>
